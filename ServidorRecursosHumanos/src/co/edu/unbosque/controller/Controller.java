@@ -70,6 +70,7 @@ public class Controller extends Thread {
 		String text = "";
 		while (!text.equals("Over")) {
 			try {
+				text = "";
 				this.server = new ServerSocket(this.port);
 				vw.enviarMensaje("Server encendido");
 				vw.enviarMensaje("Esperando un cliente ...");
