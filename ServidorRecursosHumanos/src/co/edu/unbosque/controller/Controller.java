@@ -44,8 +44,6 @@ public class Controller extends Thread {
 		this.addressClient = addressClient;
 		vw = new View();
 		candidatos = new ImplementsCandidatosDAO();
-		run();
-
 	}
 
 	/*
@@ -78,53 +76,55 @@ public class Controller extends Thread {
 				vw.enviarMensaje("Conexion con el cliente exitosa");
 				this.in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				text = in.readUTF();
-				String[] parts = text.split("-");
 				this.socketR = new Socket(this.socket.getInetAddress(), this.port + 1);
 				this.out = new DataOutputStream(socketR.getOutputStream());
-				if (parts[0].equalsIgnoreCase("crear")) {
-					try {
-						this.out.writeUTF(crear(parts[1], parts[2], parts[3], parts[4], parts[5]));
-						vw.enviarMensaje("accomplished");
-					} catch (Exception e) {
-						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
+				if (!text.equalsIgnoreCase("listar")) {
+					String[] parts = text.split("-");
+					if (parts[0].equalsIgnoreCase("crear")) {
+						try {
+							this.out.writeUTF(crear(parts[1], parts[2], parts[3], parts[4], parts[5]));
+							vw.enviarMensaje("Creado");
+						} catch (Exception e) {
+							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
+							this.out.writeUTF("fail");
+						}
+					} else if (parts[0].equalsIgnoreCase("eliminar")) {
+						try {
+							this.out.writeUTF(eliminar(parts[1]));
+							vw.enviarMensaje("Eliminado");
+						} catch (Exception e) {
+							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
+							this.out.writeUTF("fail");
+						}
+					} else if (parts[0].equalsIgnoreCase("modificar")) {
+						try {
+							this.out.writeUTF(modificar(parts[1], parts[2], parts[3], parts[4], parts[5]));
+							vw.enviarMensaje("Modificado");
+						} catch (Exception e) {
+							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
+							this.out.writeUTF("fail");
+						}
+					} else if (parts[0].equalsIgnoreCase("buscar2")) {
+						try {
+							this.out.writeUTF(buscar2(parts[1]));
+							vw.enviarMensaje("Encontrado");
+						} catch (Exception e) {
+							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
+							this.out.writeUTF("fail");
+						}
+					} else if (parts[0].equalsIgnoreCase("buscar1")) {
+						try {
+							this.out.writeUTF(buscar1(parts[1]));
+							vw.enviarMensaje("Encontrado");
+						} catch (Exception e) {
+							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
+							this.out.writeUTF("fail");
+						}
 					}
-				} else if (parts[0].equalsIgnoreCase("eliminar")) {
-					try {
-						this.out.writeUTF(eliminar(parts[1]));
-						vw.enviarMensaje("accomplished");
-					} catch (Exception e) {
-						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
-					}
-				} else if (parts[0].equalsIgnoreCase("modificar")) {
-					try {
-						this.out.writeUTF(modificar(parts[1], parts[2], parts[3], parts[4], parts[5]));
-						vw.enviarMensaje("accomplished");
-					} catch (Exception e) {
-						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
-					}
-				} else if (parts[0].equalsIgnoreCase("listar")) {
+				} else if (text.equalsIgnoreCase("listar")) {
 					try {
 						this.out.writeUTF(listar());
-						vw.enviarMensaje("accomplished");
-					} catch (Exception e) {
-						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
-					}
-				} else if (parts[0].equalsIgnoreCase("buscar2")) {
-					try {
-						this.out.writeUTF(buscar2(parts[1]));
-						vw.enviarMensaje("accomplished");
-					} catch (Exception e) {
-						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
-					}
-				} else if (parts[0].equalsIgnoreCase("buscar1")) {
-					try {
-						this.out.writeUTF(buscar1(parts[1]));
-						vw.enviarMensaje("accomplished");
+						vw.enviarMensaje("Lista");
 					} catch (Exception e) {
 						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
 						this.out.writeUTF("fail");
@@ -161,7 +161,7 @@ public class Controller extends Thread {
 	public String crear(String nombre, String apellido, String cedula, String edad, String cargo) {
 		try {
 			candidatos.ingresar(nombre, apellido, Integer.parseInt(cedula), Integer.parseInt(edad), cargo);
-			return "accomplished";
+			return "ok";
 		} catch (Exception e) {
 			return "fail";
 		}
@@ -181,7 +181,7 @@ public class Controller extends Thread {
 		try {
 			boolean x = candidatos.modificar(nombre, apellido, Integer.parseInt(cedula), Integer.parseInt(edad), cargo);
 			if (x) {
-				return "accomplished";
+				return "ok";
 			} else {
 				return "fail";
 			}
