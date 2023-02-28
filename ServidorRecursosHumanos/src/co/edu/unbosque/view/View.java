@@ -37,4 +37,11 @@ public class View {
 	public void enviarMensajeError(String msg) {
 		System.err.println(msg);
 	}
+
+	public String leerString(String msm) {
+		System.out.println(msm);
+		String tmp = sc.next();
+		sc.nextLine();
+		return tmp;
+	}
 }

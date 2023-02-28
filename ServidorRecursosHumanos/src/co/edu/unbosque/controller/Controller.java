@@ -41,7 +41,6 @@ public class Controller extends Thread {
 		this.in = null;
 		this.out = null;
 		this.port = port;
-		this.addressClient = addressClient;
 		vw = new View();
 		candidatos = new ImplementsCandidatosDAO();
 	}
@@ -86,7 +85,7 @@ public class Controller extends Thread {
 							vw.enviarMensaje("Creado");
 						} catch (Exception e) {
 							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-							this.out.writeUTF("fail");
+							this.out.writeUTF("false");
 						}
 					} else if (parts[0].equalsIgnoreCase("eliminar")) {
 						try {
@@ -94,7 +93,7 @@ public class Controller extends Thread {
 							vw.enviarMensaje("Eliminado");
 						} catch (Exception e) {
 							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-							this.out.writeUTF("fail");
+							this.out.writeUTF("false");
 						}
 					} else if (parts[0].equalsIgnoreCase("modificar")) {
 						try {
@@ -102,7 +101,7 @@ public class Controller extends Thread {
 							vw.enviarMensaje("Modificado");
 						} catch (Exception e) {
 							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-							this.out.writeUTF("fail");
+							this.out.writeUTF("false");
 						}
 					} else if (parts[0].equalsIgnoreCase("buscar2")) {
 						try {
@@ -110,7 +109,7 @@ public class Controller extends Thread {
 							vw.enviarMensaje("Encontrado");
 						} catch (Exception e) {
 							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-							this.out.writeUTF("fail");
+							this.out.writeUTF("false");
 						}
 					} else if (parts[0].equalsIgnoreCase("buscar1")) {
 						try {
@@ -118,7 +117,7 @@ public class Controller extends Thread {
 							vw.enviarMensaje("Encontrado");
 						} catch (Exception e) {
 							vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-							this.out.writeUTF("fail");
+							this.out.writeUTF("false");
 						}
 					}
 				} else if (text.equalsIgnoreCase("listar")) {
@@ -127,7 +126,7 @@ public class Controller extends Thread {
 						vw.enviarMensaje("Lista");
 					} catch (Exception e) {
 						vw.enviarMensajeError("Algo fallo: " + e.getMessage());
-						this.out.writeUTF("fail");
+						this.out.writeUTF("false");
 					}
 				}
 				this.out.close();
@@ -135,8 +134,12 @@ public class Controller extends Thread {
 				this.in.close();
 				this.server.close();
 			} catch (IOException i) {
-				System.out.println(i);
-				System.exit(0);
+				if (i.getMessage().equals("Connection reset")) {
+					System.out.println("Cliente desconectado");
+				} else {
+					System.out.println(i);
+					break;
+				}
 			}
 		}
 		System.out.println("Conexion terminada");
@@ -161,9 +164,9 @@ public class Controller extends Thread {
 	public String crear(String nombre, String apellido, String cedula, String edad, String cargo) {
 		try {
 			candidatos.ingresar(nombre, apellido, Integer.parseInt(cedula), Integer.parseInt(edad), cargo);
-			return "ok";
+			return "true";
 		} catch (Exception e) {
-			return "fail";
+			return "false";
 		}
 	}
 
@@ -181,13 +184,13 @@ public class Controller extends Thread {
 		try {
 			boolean x = candidatos.modificar(nombre, apellido, Integer.parseInt(cedula), Integer.parseInt(edad), cargo);
 			if (x) {
-				return "ok";
+				return "true";
 			} else {
-				return "fail";
+				return "false";
 			}
 
 		} catch (Exception e) {
-			return "fail";
+			return "false";
 		}
 	}
 
@@ -203,10 +206,10 @@ public class Controller extends Thread {
 			if (candidatos.buscar(Integer.parseInt(cedula)) != null) {
 				return candidatos.buscar(Integer.parseInt(cedula)).toString2();
 			} else {
-				return "fail";
+				return "false";
 			}
 		} catch (Exception e) {
-			return "fail";
+			return "false";
 		}
 	}
 
@@ -222,10 +225,10 @@ public class Controller extends Thread {
 			if (candidatos.buscar(Integer.parseInt(cedula)) != null) {
 				return candidatos.buscar(Integer.parseInt(cedula)).toString();
 			} else {
-				return "fail";
+				return "false";
 			}
 		} catch (Exception e) {
-			return "fail";
+			return "false";
 		}
 	}
 
@@ -247,9 +250,9 @@ public class Controller extends Thread {
 	public String eliminar(String cedula) {
 		try {
 			candidatos.eliminar(Integer.parseInt(cedula));
-			return "ok";
+			return "true";
 		} catch (Exception e) {
-			return "fail";
+			return "false";
 		}
 	}
 
